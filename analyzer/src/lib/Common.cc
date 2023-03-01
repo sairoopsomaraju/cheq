@@ -1,10 +1,14 @@
 #include <llvm/IR/InlineAsm.h>
 #include <llvm/IR/InstIterator.h>
+#include <llvm/IR/Instruction.h>
+#include <llvm/IR/Instructions.h>
 #include <fstream>
 #include <regex>
 #include "Common.h"
 
 #define LINUX_SOURCE "/your-path-of-the-linux-source/linux-5.3.0"
+
+using namespace llvm;
 
 bool trimPathSlash(string &path, int slash) {
 	while (slash > 0) {
@@ -34,12 +38,12 @@ string getFileName(DILocation *Loc, DISubprogram *SP) {
 /// Check if the value is a constant.
 bool isConstant(Value *V) {
   // Invalid input.
-  if (!V) 
+  if (!V)
     return false;
 
   // The value is a constant.
   Constant *Ct = dyn_cast<Constant>(V);
-  if (Ct) 
+  if (Ct)
     return true;
 
   return false;
@@ -50,7 +54,7 @@ string getSourceLine(string fn_str, unsigned lineno) {
 	std::ifstream sourcefile(fn_str);
 	string line;
 	sourcefile.seekg(ios::beg);
-	
+
 	for(int n = 0; n < lineno - 1; ++n){
 		sourcefile.ignore(std::numeric_limits<streamsize>::max(), '\n');
 	}
@@ -67,7 +71,7 @@ string getSourceFuncName(Instruction *I) {
 	unsigned lineno = Loc->getLine();
 	std::string fn_str = getFileName(Loc);
 	string line = getSourceLine(fn_str, lineno);
-	
+
 	while(line[0] == ' ' || line[0] == '\t')
 		line.erase(line.begin());
 	line = line.substr(0, line.find('('));
@@ -78,7 +82,7 @@ string extractMacro(string line, Instruction *I) {
 	string macro, word, FnName;
 	std::regex caps("[^\\(][_A-Z][_A-Z0-9]+[\\);,]+");
 	smatch match;
-	
+
 	// detect function macros
 	if (CallInst *CI = dyn_cast<CallInst>(I)) {
 		FnName = getCalledFuncName(CI);
@@ -87,7 +91,7 @@ string extractMacro(string line, Instruction *I) {
 
 		if (regex_search(line, match, keywords))
 		  line = line.substr(match[0].length());
-		
+
 		if (line.find(FnName) != std::string::npos) {
 			if (regex_search(FnName, match, caps))
 				return FnName;
@@ -126,9 +130,9 @@ StringRef getCalledFuncName(Instruction *I) {
 
   Value *V;
 	if (CallInst *CI = dyn_cast<CallInst>(I))
-		V = CI->getCalledValue();
+		V = CI->getCalledOperand();
 	else if (InvokeInst *II = dyn_cast<InvokeInst>(I))
-		V = II->getCalledValue();
+		V = II->getCalledOperand();
 	assert(V);
 
   InlineAsm *IA = dyn_cast<InlineAsm>(V);
@@ -307,7 +311,7 @@ size_t funcHash(Function *F, bool withName) {
 #ifdef HASH_SOURCE_INFO
 	}
 #endif
-	string::iterator end_pos = remove(output.begin(), 
+	string::iterator end_pos = remove(output.begin(),
 			output.end(), ' ');
 	output.erase(end_pos, output.end());
 
@@ -315,8 +319,6 @@ size_t funcHash(Function *F, bool withName) {
 }
 
 size_t callHash(CallInst *CI) {
-
-	CallSite CS(CI);
 	Function *CF = CI->getCalledFunction();
 
 	if (CF)
@@ -325,11 +327,11 @@ size_t callHash(CallInst *CI) {
 		hash<string> str_hash;
 		string sig;
 		raw_string_ostream rso(sig);
-		Type *FTy = CS.getFunctionType();
+		Type *FTy = CI->getFunctionType();
 		FTy->print(rso);
 
 		string strip_str = rso.str();
-		string::iterator end_pos = remove(strip_str.begin(), 
+		string::iterator end_pos = remove(strip_str.begin(),
 				strip_str.end(), ' ');
 		strip_str.erase(end_pos, strip_str.end());
 		return str_hash(strip_str);

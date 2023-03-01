@@ -1,5 +1,5 @@
 //===-- CallGraph.cc - Build global call-graph------------------===//
-// 
+//
 // This pass builds a global call-graph. The targets of an indirect
 // call are identified based on type-analysis, i.e., matching the
 // number and type of function parameters.
@@ -17,16 +17,16 @@
 #include <llvm/ADT/StringExtras.h>
 #include <llvm/Analysis/CallGraph.h>
 #include "llvm/IR/Function.h"
-#include "llvm/Support/raw_ostream.h"  
-#include "llvm/IR/InstrTypes.h" 
-#include "llvm/IR/BasicBlock.h" 
+#include "llvm/Support/raw_ostream.h"
+#include "llvm/IR/InstrTypes.h"
+#include "llvm/IR/BasicBlock.h"
 #include "llvm/Analysis/LoopInfo.h"
 #include "llvm/Analysis/LoopPass.h"
 #include <llvm/IR/LegacyPassManager.h>
-#include <map> 
-#include <vector> 
-#include "llvm/IR/CFG.h" 
-#include "llvm/Transforms/Utils/BasicBlockUtils.h" 
+#include <map>
+#include <vector>
+#include "llvm/IR/CFG.h"
+#include "llvm/Transforms/Utils/BasicBlockUtils.h"
 #include "llvm/IR/IRBuilder.h"
 
 #include "CallGraph.h"
@@ -47,8 +47,6 @@ void CallGraphPass::findCalleesWithType(CallInst *CI, FuncSet &S) {
 	//
 	// TODO: performance improvement: cache results for types
 	//
-
-	CallSite CS(CI);
 	for (Function *F : Ctx->AddressTakenFuncs) {
 
 		// VarArg
@@ -56,7 +54,7 @@ void CallGraphPass::findCalleesWithType(CallInst *CI, FuncSet &S) {
 			// Compare only known args in VarArg.
 		}
 		// otherwise, the numbers of args should be equal.
-		else if (F->arg_size() != CS.arg_size()) {
+		else if (F->arg_size() != CI->arg_size()) {
 			continue;
 		}
 
@@ -66,8 +64,8 @@ void CallGraphPass::findCalleesWithType(CallInst *CI, FuncSet &S) {
 
 		// Type matching on args.
 		bool Matched = true;
-		CallSite::arg_iterator AI = CS.arg_begin();
-		for (Function::arg_iterator FI = F->arg_begin(), 
+		User::op_iterator AI = CI->arg_begin();
+		for (Function::arg_iterator FI = F->arg_begin(),
 				FE = F->arg_end();
 				FI != FE; ++FI, ++AI) {
 			// Check type mis-matches.
@@ -89,8 +87,8 @@ void CallGraphPass::findCalleesWithType(CallInst *CI, FuncSet &S) {
 			// two modules very hard, which is actually done
 			// at link time by the linker.
 			while (DefinedTy->isPointerTy() && ActualTy->isPointerTy()) {
-				DefinedTy = DefinedTy->getPointerElementType();
-				ActualTy = ActualTy->getPointerElementType();
+				DefinedTy = DefinedTy->getNonOpaquePointerElementType();
+				ActualTy = ActualTy->getNonOpaquePointerElementType();
 			}
 			if (DefinedTy->isStructTy() && ActualTy->isStructTy() &&
 					(DefinedTy->getStructName().equals(ActualTy->getStructName())))
@@ -101,11 +99,11 @@ void CallGraphPass::findCalleesWithType(CallInst *CI, FuncSet &S) {
 			// TODO: more types to be supported.
 
 			// Make the type analysis conservative: assume universal
-			// pointers, i.e., "void *" and "char *", are equivalent to 
+			// pointers, i.e., "void *" and "char *", are equivalent to
 			// any pointer type and integer type.
 			if (
 					(DefinedTy == Int8PtrTy &&
-					 (ActualTy->isPointerTy() || ActualTy == IntPtrTy)) 
+					 (ActualTy->isPointerTy() || ActualTy == IntPtrTy))
 					||
 					(ActualTy == Int8PtrTy &&
 					 (DefinedTy->isPointerTy() || DefinedTy == IntPtrTy))
@@ -173,21 +171,21 @@ void CallGraphPass::unrollLoops(Function *F) {
 			// Two cases:
 			// 1. Latch Block has only one successor:
 			// 	for loop or while loop;
-			// 	In this case: set the Successor of Latch Block to the 
+			// 	In this case: set the Successor of Latch Block to the
 			//	successor block (out of loop one) of Header block
-			// 2. Latch Block has two successor: 
+			// 2. Latch Block has two successor:
 			// do-while loop:
 			// In this case: set the Successor of Latch Block to the
-			//  another successor block of Latch block 
+			//  another successor block of Latch block
 
 			// get the last instruction in the Latch block
 			Instruction *TI = LatchB->getTerminator();
 			// Case 1:
 			if (LatchB->getSingleSuccessor() != NULL) {
-				for (succ_iterator sit = succ_begin(HeaderB); 
-						sit != succ_end(HeaderB); ++sit) {  
+				for (succ_iterator sit = succ_begin(HeaderB);
+						sit != succ_end(HeaderB); ++sit) {
 
-					BasicBlock *SuccB = *sit;	
+					BasicBlock *SuccB = *sit;
 					BasicBlockEdge BBE = BasicBlockEdge(HeaderB, SuccB);
 					// Header block has two successor,
 					// one edge dominate Latch block;
@@ -201,7 +199,7 @@ void CallGraphPass::unrollLoops(Function *F) {
 			}
 			// Case 2:
 			else {
-				for (succ_iterator sit = succ_begin(LatchB); 
+				for (succ_iterator sit = succ_begin(LatchB);
 						sit != succ_end(LatchB); ++sit) {
 
 					BasicBlock *SuccB = *sit;
@@ -212,7 +210,7 @@ void CallGraphPass::unrollLoops(Function *F) {
 					else{
 						TI->setSuccessor(0, SuccB);
 					}
-				}	
+				}
 			}
 		}
 	}
@@ -226,7 +224,7 @@ bool CallGraphPass::doInitialization(Module *M) {
 	IntPtrTy = DL->getIntPtrType(M->getContext());
 
 	// Iterate functions and instructions
-	for (Function &F : *M) { 
+	for (Function &F : *M) {
 
 		//if (F.empty())
 		//	continue;
@@ -248,7 +246,7 @@ bool CallGraphPass::doInitialization(Module *M) {
 				FName = StringRef("sys_" + FName.str().substr(4));
 
 			// Map functions to their names.
-			Ctx->GlobalFuncs[FName] = &F;
+			Ctx->GlobalFuncs[FName.str()] = &F;
 		}
 
 		// Keep a single copy for same functions (inline functions)
@@ -273,9 +271,9 @@ bool CallGraphPass::doFinalization(Module *M) {
 
 bool CallGraphPass::doModulePass(Module *M) {
 
-	// Use type-analysis to concervatively find possible targets of 
+	// Use type-analysis to concervatively find possible targets of
 	// indirect calls.
-	for (Module::iterator f = M->begin(), fe = M->end(); 
+	for (Module::iterator f = M->begin(), fe = M->end();
 			f != fe; ++f) {
 
 		Function *F = &*f;
@@ -290,17 +288,15 @@ bool CallGraphPass::doModulePass(Module *M) {
 #endif
 
 		// Collect callers and callees
-		for (inst_iterator i = inst_begin(F), e = inst_end(F); 
+		for (inst_iterator i = inst_begin(F), e = inst_end(F);
 				i != e; ++i) {
 			// Map callsite to possible callees.
 			if (CallInst *CI = dyn_cast<CallInst>(&*i)) {
-
-				CallSite CS(CI);
 				FuncSet FS;
 				Function *CF = CI->getCalledFunction();
-				Value *CV = CI->getCalledValue();
+				Value *CV = CI->getCalledOperand();
 				// Indirect call
-				if (CS.isIndirectCall()) {
+				if (CI->isIndirectCall()) {
 #ifdef SOUND_MODE
 					findCalleesWithType(CI, FS);
 #endif
@@ -320,7 +316,7 @@ bool CallGraphPass::doModulePass(Module *M) {
 							StringRef FName = CF->getName();
 							if (FName.startswith("SyS_"))
 								FName = StringRef("sys_" + FName.str().substr(4));
-							if (Function *GF = Ctx->GlobalFuncs[FName])
+							if (Function *GF = Ctx->GlobalFuncs[FName.str()])
 								CF = GF;
 						}
 						// Use unified function

@@ -22,12 +22,12 @@
 //
 
 // Setup functions that handle errors
-static void SetErrorHandleFuncs(set<string> &ErrorHandleFuncs) {
+static void SetErrorHandleFuncs(std::set<std::string> &ErrorHandleFuncs) {
 
-	string exepath = sys::fs::getMainExecutable(NULL, NULL);
-	string exedir = exepath.substr(0, exepath.find_last_of('/'));
-	string line;
-  ifstream errfile(exedir	+ "/configs/err-funcs");
+	std::string exepath = llvm::sys::fs::getMainExecutable(NULL, NULL);
+	std::string exedir = exepath.substr(0, exepath.find_last_of('/'));
+	std::string line;
+  std::ifstream errfile(exedir	+ "/configs/err-funcs");
   if (errfile.is_open()) {
 		while (!errfile.eof()) {
 			getline (errfile, line);
@@ -38,7 +38,7 @@ static void SetErrorHandleFuncs(set<string> &ErrorHandleFuncs) {
     errfile.close();
   }
 
-	string ErrorHandleFN[] = {
+	std::string ErrorHandleFN[] = {
 		"BUG",
 		"BUG_ON",
 		"ASM_BUG",
@@ -64,17 +64,17 @@ static void SetErrorHandleFuncs(set<string> &ErrorHandleFuncs) {
 // Setup functions that copy/move/cast values.
 static void SetCopyFuncs(
 		// <src, dst, size>
-		map<string, tuple<int8_t, int8_t, int8_t>> &CopyFuncs) {
+		std::map<std::string, std::tuple<int8_t, int8_t, int8_t>> &CopyFuncs) {
 
-	CopyFuncs["memcpy"] = make_tuple(1, 0, 2);
-	CopyFuncs["__memcpy"] = make_tuple(1, 0, 2);
-	CopyFuncs["llvm.memcpy.p0i8.p0i8.i32"] = make_tuple(1, 0, 2);
-	CopyFuncs["llvm.memcpy.p0i8.p0i8.i64"] = make_tuple(1, 0, 2);
-	CopyFuncs["strncpy"] = make_tuple(1, 0, 2);
-	CopyFuncs["memmove"] = make_tuple(1, 0, 2);
-	CopyFuncs["__memmove"] = make_tuple(1, 0, 2);
-	CopyFuncs["llvm.memmove.p0i8.p0i8.i32"] = make_tuple(1, 0, 2);
-	CopyFuncs["llvm.memmove.p0i8.p0i8.i64"] = make_tuple(1, 0, 2);
+	CopyFuncs["memcpy"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["__memcpy"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["llvm.memcpy.p0i8.p0i8.i32"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["llvm.memcpy.p0i8.p0i8.i64"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["strncpy"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["memmove"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["__memmove"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["llvm.memmove.p0i8.p0i8.i32"] = std::make_tuple(1, 0, 2);
+	CopyFuncs["llvm.memmove.p0i8.p0i8.i64"] = std::make_tuple(1, 0, 2);
 }
 
 #endif

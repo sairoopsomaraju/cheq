@@ -22,11 +22,8 @@ add_library (AnalyzerStatic STATIC $<TARGET_OBJECTS:AnalyzerObj>)
 set (EXECUTABLE_OUTPUT_PATH ${ANALYZER_BINARY_DIR})
 link_directories (${ANALYZER_BINARY_DIR}/lib)
 add_executable(kanalyzer ${AnalyzerSourceCodes})
-target_link_libraries(kanalyzer 
-  LLVMAsmParser 
-  LLVMSupport 
-  LLVMCore 
-  LLVMAnalysis
-  LLVMIRReader
+target_link_libraries(kanalyzer
+  	LLVMSupport
+  	LLVM
 	AnalyzerStatic
   )

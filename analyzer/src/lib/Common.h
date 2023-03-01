@@ -2,6 +2,7 @@
 #define COMMON_H
 
 #include <llvm/IR/Module.h>
+#include "llvm/ADT/Triple.h"
 #include <llvm/Analysis/TargetLibraryInfo.h>
 #include <llvm/Support/raw_ostream.h>
 #include <llvm/Support/CommandLine.h>
@@ -48,7 +49,7 @@ extern cl::opt<unsigned> VerboseLevel;
 // Common functions
 //
 
-string getFileName(DILocation *Loc, 
+string getFileName(DILocation *Loc,
 		DISubprogram *SP=NULL);
 
 bool isConstant(Value *V);
