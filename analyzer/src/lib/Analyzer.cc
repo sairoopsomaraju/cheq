@@ -12,6 +12,7 @@
 #include <llvm/IR/PassManager.h>
 #include <llvm/IR/Verifier.h>
 #include <llvm/IRReader/IRReader.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/FileSystem.h>
 #include <llvm/Support/ManagedStatic.h>
 #include <llvm/Support/Path.h>
@@ -44,6 +45,10 @@ cl::opt<unsigned>
 
 cl::opt<bool> SecurityChecks("sc", cl::desc("Identify sanity checks"),
                              cl::NotHidden, cl::init(false));
+
+cl::list<string> CallgraphEntry("callgraph-entry",
+                                cl::desc("Entry function of callgraphs"),
+                                cl::OneOrMore, cl::CommaSeparated);
 
 GlobalContext GlobalCtx;
 
@@ -149,6 +154,10 @@ int main(int argc, char **argv) {
   // Build global callgraph.
   CallGraphPass CGPass(&GlobalCtx);
   CGPass.run(GlobalCtx.Modules);
+
+  OP << "Total " << CallgraphEntry.size() << " helpers\n";
+  for (const auto &helper : CallgraphEntry)
+    OP << helper << '\n';
 
   // Identify sanity checks
   if (SecurityChecks) {
