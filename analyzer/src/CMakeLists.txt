@@ -13,16 +13,18 @@ message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 # Check for C++14 support and set the compilation flag
 include(CheckCXXCompilerFlag)
 
-add_compile_options(-std=c++20 -fPIC -Wall -march=native -pipe -flto=8)
+set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3")
+
+add_compile_options(-std=c++20 -fPIC -march=native -pipe -flto=auto)
 add_compile_options(-fuse-linker-plugin -ffunction-sections -fdata-sections)
 add_compile_options(-fgraphite-identity -floop-nest-optimize -fipa-pta)
 add_compile_options(-fdevirtualize-at-ltrans -fno-semantic-interposition)
 
-link_libraries(-std=c++20 -fPIC -Wall -march=native -pipe -flto=8)
+link_libraries(-std=c++20 -fPIC -march=native -pipe -flto=auto)
 link_libraries(-fuse-linker-plugin -ffunction-sections -fdata-sections)
 link_libraries(-fgraphite-identity -floop-nest-optimize -fipa-pta)
 link_libraries(-fdevirtualize-at-ltrans -fno-semantic-interposition)
-link_libraries(-fuse-ld=mold -Wl,-O1 -Wl,-as-needed -Wl,--gc-sections)
+link_libraries(-fuse-ld=mold -Wl,-O1 -Wl,--as-needed -Wl,--gc-sections)
 #CHECK_CXX_COMPILER_FLAG("-std=c++14" COMPILER_SUPPORTS_CXX14)
 # if(COMPILER_SUPPORTS_CXX14)
 # 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14 -fno-rtti -fPIC -Wall")
