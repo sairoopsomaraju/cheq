@@ -30,6 +30,7 @@
 #include "Analyzer.h"
 #include "CallGraph.h"
 #include "Config.h"
+#include "HelperAnalysis.h"
 #include "SecurityChecks.h"
 
 using namespace llvm;
@@ -156,8 +157,11 @@ int main(int argc, char **argv) {
   CGPass.run(GlobalCtx.Modules);
 
   OP << "Total " << CallgraphEntry.size() << " helpers\n";
-  for (const auto &helper : CallgraphEntry)
-    OP << helper << '\n';
+
+  HelperAnalysisPass HAPass(&GlobalCtx); 
+  for (const string &helper : CallgraphEntry) {
+    HAPass.treeWalk(GlobalCtx.GlobalFuncs[helper]);
+  }
 
   // Identify sanity checks
   if (SecurityChecks) {

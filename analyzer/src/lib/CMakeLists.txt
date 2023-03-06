@@ -1,10 +1,12 @@
 set (AnalyzerSourceCodes
-	Common.h
-	Common.cc
 	Analyzer.h
 	Analyzer.cc
 	CallGraph.h
 	CallGraph.cc
+	Common.h
+	Common.cc
+  HelperAnalysis.h
+  HelperAnalysis.cc
 	SecurityChecks.h
 	SecurityChecks.cc
 	)
@@ -23,7 +25,7 @@ set (EXECUTABLE_OUTPUT_PATH ${ANALYZER_BINARY_DIR})
 link_directories (${ANALYZER_BINARY_DIR}/lib)
 add_executable(kanalyzer ${AnalyzerSourceCodes})
 target_link_libraries(kanalyzer
-  	LLVMSupport
-  	LLVM
+  LLVMSupport
+  LLVM
 	AnalyzerStatic
   )

@@ -1,7 +1,6 @@
 #ifndef ANALYZER_GLOBAL_H
 #define ANALYZER_GLOBAL_H
 
-#include "llvm/Support/CommandLine.h"
 #include <fstream>
 #include <iostream>
 #include <llvm/ADT/DenseMap.h>
@@ -11,6 +10,7 @@
 #include <llvm/IR/DebugInfo.h>
 #include <llvm/IR/Instructions.h>
 #include <llvm/IR/Module.h>
+#include <llvm/Support/CommandLine.h>
 #include <llvm/Support/Path.h>
 #include <llvm/Support/raw_ostream.h>
 #include <map>
