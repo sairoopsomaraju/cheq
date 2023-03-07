@@ -252,6 +252,7 @@ bool CallGraphPass::doInitialization(Module *M) {
       if (F.hasAddressTaken()) {
         Ctx->sigFuncsMap[funcHash(&F, false)].insert(&F);
       }
+	  Ctx->AllFuncs[F.getName().str()] = &F;
     }
   }
 

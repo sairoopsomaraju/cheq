@@ -15,12 +15,12 @@ include(CheckCXXCompilerFlag)
 
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3")
 
-add_compile_options(-std=c++20 -fPIC -march=native -pipe -flto=auto)
+add_compile_options(-std=c++20 -fPIC -march=native -pipe -flto=auto -fno-rtti)
 add_compile_options(-fuse-linker-plugin -ffunction-sections -fdata-sections)
 add_compile_options(-fgraphite-identity -floop-nest-optimize -fipa-pta)
 add_compile_options(-fdevirtualize-at-ltrans -fno-semantic-interposition)
 
-link_libraries(-std=c++20 -fPIC -march=native -pipe -flto=auto)
+link_libraries(-std=c++20 -fPIC -march=native -pipe -flto=auto -fno-rtti)
 link_libraries(-fuse-linker-plugin -ffunction-sections -fdata-sections)
 link_libraries(-fgraphite-identity -floop-nest-optimize -fipa-pta)
 link_libraries(-fdevirtualize-at-ltrans -fno-semantic-interposition)

@@ -82,6 +82,12 @@ struct GlobalContext {
   // Identified sanity checks
   DenseMap<Function *, set<SecurityCheck>> SecurityCheckSets;
   DenseMap<Function *, set<Value *>> CheckInstSets;
+
+  // Store stack usage data for functions
+  DenseMap<llvm::Function *, uint64_t> StackUsage;
+
+  // Map all function names to functions
+  std::unordered_map<std::string, llvm::Function *> AllFuncs;
 };
 
 class IterativeModulePass {

@@ -9,6 +9,7 @@ set (AnalyzerSourceCodes
   HelperAnalysis.cc
 	SecurityChecks.h
 	SecurityChecks.cc
+  StackUsage.h
 	)
 
 file(COPY configs/ DESTINATION configs)

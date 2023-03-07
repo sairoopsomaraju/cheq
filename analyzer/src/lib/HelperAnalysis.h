@@ -1,7 +1,9 @@
 #ifndef HELPER_ANALYSIS_H
 #define HELPER_ANALYSIS_H
 
-#include "Analyzer.h"
+#include <llvm/IR/Function.h>
+
+struct GlobalContext;
 
 class HelperAnalysisPass {
   GlobalContext *Ctx;
