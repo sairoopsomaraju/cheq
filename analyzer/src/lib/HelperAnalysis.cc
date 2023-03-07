@@ -9,7 +9,6 @@
 
 #include <queue>
 
-
 using namespace llvm;
 
 /// Use a worklist algorithm to perform a tree walk over the callgraph
@@ -27,7 +26,8 @@ void HelperAnalysisPass::treeWalk(Function *HelperFn) {
     if (Visited.count(CurrFn))
       continue;
     Visited.insert(CurrFn);
-    OP << CurrFn->getName() << " stack-usage=" << Ctx->StackUsage[CurrFn] << '\n';
+    OP << CurrFn->getName() << " stack-usage=" << Ctx->StackUsage[CurrFn]
+       << '\n';
 
     // Traverse all call sites in current function
     for (inst_iterator I = inst_begin(CurrFn), E = inst_end(CurrFn); I != E;

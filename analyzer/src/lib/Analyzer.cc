@@ -33,7 +33,6 @@
 #include "HelperAnalysis.h"
 #include "SecurityChecks.h"
 #include "StackUsage.h"
-#include "llvm/Support/ErrorHandling.h"
 
 using namespace llvm;
 
@@ -123,15 +122,15 @@ void PrintResults(GlobalContext *GCtx) {
 
 /// Migrate the data from constexpr array into global context
 void initStackUsage(GlobalContext *GCtx) {
-	auto IE = GCtx->AllFuncs.end();
-	for (const auto &I: StackUsageArr) {
-		// Somehow the kernel is mangling some of its symbols, i.e. functions
-		// marked as `__init`, this means some of the functions in the stack
-		// usage array will not be found in the global context
-		auto IT = GCtx->AllFuncs.find(I.first);
-		if (IT != IE)
-			GCtx->StackUsage.insert({IT->second, I.second});
-	}
+  auto IE = GCtx->AllFuncs.end();
+  for (const auto &I : StackUsageArr) {
+    // Somehow the kernel is mangling some of its symbols, i.e. functions
+    // marked as `__init`, this means some of the functions in the stack
+    // usage array will not be found in the global context
+    auto IT = GCtx->AllFuncs.find(I.first);
+    if (IT != IE)
+      GCtx->StackUsage.insert({IT->second, I.second});
+  }
 }
 
 int main(int argc, char **argv) {
@@ -172,7 +171,8 @@ int main(int argc, char **argv) {
   CGPass.run(GlobalCtx.Modules);
 
   OP << "Total " << CallgraphEntry.size() << " helpers\n";
-  OP << "Total " << StackUsageArr.size() << " functions with stack depth data\n";
+  OP << "Total " << StackUsageArr.size()
+     << " functions with stack depth data\n";
   OP << "Total " << GlobalCtx.AllFuncs.size() << " functions from IR\n";
   OP << "Total " << GlobalCtx.GlobalFuncs.size() << " global functions\n";
 
@@ -180,7 +180,7 @@ int main(int argc, char **argv) {
 
   OP << '\n';
 
-  HelperAnalysisPass HAPass(&GlobalCtx); 
+  HelperAnalysisPass HAPass(&GlobalCtx);
   for (const string &helper : CallgraphEntry) {
     HAPass.treeWalk(GlobalCtx.GlobalFuncs[helper]);
   }

@@ -5,7 +5,8 @@
 #include <cstdint>
 #include <utility>
 
-#define STACK_USAGE(FUNC, USAGE)	std::make_pair<const char *, uint64_t>(FUNC, USAGE)
+#define STACK_USAGE(FUNC, USAGE)                                               \
+  std::make_pair<const char *, uint64_t>(FUNC, USAGE)
 
 constexpr const std::array StackUsageArr{
 #include "stack_usage.inc"
