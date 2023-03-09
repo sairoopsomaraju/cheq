@@ -52,6 +52,10 @@ cl::list<string> CallgraphEntry("callgraph-entry",
                                 cl::desc("Entry function of callgraphs"),
                                 cl::OneOrMore, cl::CommaSeparated);
 
+cl::opt<bool> DumpCG("dump-callgraph",
+                     cl::desc("Dump callgraphs as adjacency lists"),
+                     cl::init(false));
+
 GlobalContext GlobalCtx;
 
 void IterativeModulePass::run(ModuleList &modules) {
@@ -181,8 +185,16 @@ int main(int argc, char **argv) {
   OP << '\n';
 
   HelperAnalysisPass HAPass(&GlobalCtx);
-  for (const string &helper : CallgraphEntry) {
-    HAPass.treeWalk(GlobalCtx.GlobalFuncs[helper]);
+  for (const string &Helper : CallgraphEntry) {
+    HAPass.treeWalk(GlobalCtx.GlobalFuncs[Helper]);
+    if (DumpCG) {
+      std::stringstream Filename;
+      Filename << Helper << ".txt";
+      OP << "Dump callgraph of " << Helper << " into " << Filename.str()
+         << '\n';
+      HAPass.dumpCG(Filename.str());
+    }
+    HAPass.clear();
   }
 
   OP << '\n';
