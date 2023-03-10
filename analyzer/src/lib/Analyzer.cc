@@ -67,7 +67,7 @@ void IterativeModulePass::run(ModuleList &modules) {
     again = false;
     for (i = modules.begin(), e = modules.end(); i != e; ++i) {
       again |= doInitialization(i->first);
-      OP << ".";
+      // OP << ".";
     }
   }
   OP << "\n";
@@ -79,18 +79,19 @@ void IterativeModulePass::run(ModuleList &modules) {
     unsigned counter_modules = 0;
     unsigned total_modules = modules.size();
     for (i = modules.begin(), e = modules.end(); i != e; ++i) {
-      OP << "[" << ID << " / " << iter << "] ";
-      OP << "[" << ++counter_modules << " / " << total_modules << "] ";
-      OP << "[" << i->second << "]\n";
+      // OP << "[" << ID << " / " << iter << "] ";
+      // OP << "[" << ++counter_modules << " / " << total_modules << "] ";
+      // OP << "[" << i->second << "]\n";
 
       bool ret = doModulePass(i->first);
       if (ret) {
         ++changed;
-        OP << "\t [CHANGED]\n";
+        // OP << "\t [CHANGED]\n";
       } else
-        OP << "\n";
+        // OP << "\n";
+		;
     }
-    OP << "[" << ID << "] Updated in " << changed << " modules.\n";
+    // OP << "[" << ID << "] Updated in " << changed << " modules.\n";
   }
 
   OP << "[" << ID << "] Postprocessing ...\n";
@@ -190,8 +191,8 @@ int main(int argc, char **argv) {
     if (DumpCG) {
       std::stringstream Filename;
       Filename << Helper << ".txt";
-      OP << "Dump callgraph of " << Helper << " into " << Filename.str()
-         << '\n';
+      //OP << "Dump callgraph of " << Helper << " into " << Filename.str()
+      //   << '\n';
       HAPass.dumpCG(Filename.str());
     }
     HAPass.clear();
