@@ -2,3 +2,6 @@
 	path = llvm/llvm-project
 	url = https://github.com/llvm/llvm-project.git
         branch = release/15.x
+[submodule "linux"]
+	path = linux
+	url = https://github.com/torvalds/linux.git
